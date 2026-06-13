@@ -1,0 +1,208 @@
+@import "tailwindcss";
+
+:root {
+  /* Da Nang Tourism Theme - Turquoise Waters */
+  /* Primary Colors (Turquoise/Cyan - from darkest to lightest) */
+  --theme-primary: #71C9CE;        /* Main brand color */
+  --theme-primary-dark: #5FB4BA;   /* Darker variant */
+  --theme-primary-light: #A6E3E9;  /* Lighter accent */
+
+  /* Secondary/Accent Colors */
+  --theme-accent: #A6E3E9;
+  --theme-accent-dark: #71C9CE;
+  --theme-accent-darker: #5FB4BA;
+
+  /* Tertiary (Light Cyan) */
+  --theme-tertiary: #CBF1F5;
+  --theme-tertiary-dark: #A6E3E9;
+
+  /* Background Tints */
+  --theme-bg-light: #E3FDFD;
+  --theme-bg-lighter: #CBF1F5;
+  --theme-bg-cyan: #E3FDFD;
+
+  /* Navy Anchor Colors */
+  --theme-navy: #1B3A5C;
+  --theme-navy-dark: #0F2647;
+  --theme-navy-deeper: #0A1F38;
+  --theme-navy-light: #254d7a;
+
+  /* Neutral Colors */
+  --theme-text-dark: #1F2937;
+  --theme-text-medium: #4B5563;
+  --theme-text-light: #9CA3AF;
+
+  /* Gradient Stops */
+  --gradient-hero-start: #0F2647;
+  --gradient-hero-mid: #1B3A5C;
+  --gradient-hero-end: #254d7a;
+
+  --gradient-cta-start: #71C9CE;
+  --gradient-cta-end: #A6E3E9;
+  
+  /* shadcn/ui compatibility */
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --primary: 221.2 83.2% 53.3%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96.1%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 221.2 83.2% 53.3%;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 217.2 91.2% 59.8%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 224.3 76.3% 48%;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-feature-settings: "rlig" 1, "calt" 1;
+  font-family: var(--font-body), system-ui, -apple-system, sans-serif;
+}
+
+/* Custom scrollbar styling for activity log */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Ensure smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Base styles */
+body {
+  @apply antialiased;
+}
+
+/* ===================================
+   Da Nang Tourism Theme Classes
+   =================================== */
+
+/* Display / heading font */
+.font-display {
+  font-family: var(--font-display), Georgia, serif;
+}
+
+/* Logo & Brand */
+.theme-logo {
+  color: var(--theme-primary);
+}
+
+/* Hero Section */
+.theme-hero-bg {
+  background-color: var(--theme-navy-dark);
+}
+
+/* Primary Buttons & CTAs */
+.theme-btn-primary {
+  background-color: var(--theme-navy);
+}
+
+.theme-btn-primary:hover {
+  background-color: var(--theme-navy-dark);
+}
+
+/* Navigation hover color */
+.theme-nav-link:hover {
+  color: var(--theme-primary);
+}
+
+/* Text Colors */
+.theme-text-primary {
+  color: var(--theme-primary);
+}
+
+.theme-text-accent {
+  color: var(--theme-accent);
+}
+
+/* Background gradients for sections */
+.theme-bg-gradient-light {
+  background-color: #f9fafb;
+}
+
+/* Card backgrounds */
+.theme-card-gradient {
+  background: linear-gradient(135deg, var(--theme-navy-dark), var(--theme-navy));
+}
+
+/* Day itinerary cards — all on the dark navy section */
+.theme-day1-gradient {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+}
+
+.theme-day2-gradient {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+}
+
+.theme-day3-gradient {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+}
+
+/* Why section card backgrounds */
+.theme-why-card-bg {
+  background-color: transparent;
+}
+
+/* Statistics numbers */
+.theme-stat-number {
+  color: var(--theme-navy);
+  font-family: var(--font-display), Georgia, serif;
+}
+

@@ -1,0 +1,75 @@
+# syntax=docker/dockerfile:1.7
+
+############################
+## deps stage (install deps)
+############################
+FROM node:24.3-alpine AS deps
+
+WORKDIR /app
+
+# Install pnpm globally
+RUN npm install -g pnpm@11.1.2
+
+# Copy lockfiles and install dependencies with cache (BuildKit)
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+ENV CI=true
+RUN --mount=type=cache,target=/root/.pnpm-store \
+  pnpm config set store-dir /root/.pnpm-store && \
+  pnpm install --frozen-lockfile
+
+############################
+## builder stage (build JS)
+############################
+FROM node:24.3-alpine AS builder
+
+WORKDIR /app
+
+# Install pnpm globally
+RUN npm install -g pnpm@11.1.2
+
+# Reuse installed dependencies from deps stage
+COPY --from=deps /app/node_modules ./node_modules
+COPY package.json pnpm-lock.yaml ./
+
+# Copy the rest of the app and build
+COPY . .
+COPY ./.env.local ./.env.production
+RUN pnpm build
+
+########################################
+## runner stage (minimal runtime image)
+########################################
+FROM node:24.3-alpine AS runner
+
+WORKDIR /app
+
+# Install pnpm globally in runner stage
+RUN npm install -g pnpm@11.1.2
+
+ENV NODE_ENV=production
+ENV CI=true
+
+# Create a non-root user to run the application
+RUN addgroup --system --gid 1001 appuser && \
+  adduser --system --uid 1001 --ingroup appuser appuser
+
+# Only copy what is needed at runtime (no TS/source)
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/pnpm-lock.yaml ./
+COPY --from=builder /app/pnpm-workspace.yaml ./
+COPY --from=builder /app/.npmrc ./
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/next.config.js ./
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=builder /app/.env.local ./.env.production
+
+# Set ownership of the app directory to the non-root user
+RUN chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
+
+EXPOSE 3000
+
+CMD ["pnpm", "start"]

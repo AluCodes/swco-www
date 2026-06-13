@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Allow: /about-us
+Allow: /contact-us
+Allow: /pricing
+Allow: /pricing#plans
+Disallow: /create-will/
+Disallow: /api/
+Disallow: /engagement-letter
+Disallow: /payment
+Disallow: /attestation-service
+
+Sitemap: https://kaesolegacy.com/sitemap.xml
