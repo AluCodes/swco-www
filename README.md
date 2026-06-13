@@ -1,279 +1,206 @@
-# Kaeso Legacy - Premium Will Generation Platform
+# SWCO — Share & Work Co.
 
-A modern, comprehensive will generation platform built with Next.js, TypeScript, and Tailwind CSS.
+A Next.js 14 web application for Share & Work Co., featuring a tour booking landing page, Stripe Terminal payment processing, and a payout management dashboard.
 
-## Features
-
-- **Modern Landing Page**: Beautiful, responsive landing page with animated elements
-- **Multi-Step Form**: Guided will creation process with 6 comprehensive steps
-- **Form Validation**: Robust validation using Zod schemas
-- **Real-time Progress Tracking**: Visual progress indicator with step navigation
-- **API Integration**: Webhook submission to external services
-- **PDF Generation**: API endpoint for document generation
-- **Responsive Design**: Mobile-first design approach
-- **Stripe Terminal Integration**: POS terminal payment processing
-- **Secure Payout Dashboard**: Multi-layer secured payout summary and transaction viewer
+---
 
 ## Tech Stack
 
-- **Framework**: Next.js 14 with TypeScript
-- **Styling**: Tailwind CSS
-- **Animations**: Framer Motion
-- **Form Management**: React Hook Form with Zod validation
-- **Icons**: Lucide React
-- **Deployment**: Vercel-ready
+- **Framework:** Next.js 16 (Pages Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS v4 + shadcn/ui
+- **Payments:** Stripe (Terminal SDK + REST API)
+- **Package Manager:** pnpm
+- **Runtime:** Node.js 24
+
+---
 
 ## Project Structure
 
 ```
-/pages
-  ├── index.tsx              # Landing page
-  ├── _app.tsx              # App wrapper
-  ├── create-will/
-  │   └── index.tsx         # Multi-step form
-  └── api/
-      ├── submit-will.js    # Form submission API
-      └── generate-pdf.js   # PDF generation API
-
-/components
-  └── steps/
-      ├── PersonalInfoStep.tsx
-      ├── ContactInfoStep.tsx
-      ├── AssetsStep.tsx
-      ├── BeneficiariesStep.tsx
-      ├── ExecutorStep.tsx
-      └── ReviewStep.tsx
-
-/lib
-  └── validationSchemas.ts  # Zod validation schemas
-
-/styles
-  └── globals.css          # Global styles with Tailwind
+swco-www/
+├── pages/
+│   ├── index.tsx              # Da Nang tour booking landing page
+│   ├── terminal.tsx           # Stripe Terminal POS interface
+│   ├── payout.tsx             # Payout summary dashboard (protected)
+│   ├── thank-you.tsx          # Post-booking confirmation page
+│   ├── maintenance.tsx        # Maintenance mode page
+│   └── api/
+│       ├── terminal/
+│       │   ├── connection-token.ts   # Stripe Terminal connection token
+│       │   ├── payment-intent.ts     # Create payment intents
+│       │   ├── process-payment.ts    # Process payments
+│       │   ├── reader-process-payment.ts
+│       │   ├── price.ts              # Fetch product prices
+│       │   └── log.ts                # Terminal event logging
+│       └── payout/
+│           └── summary.ts            # Stripe payout summary (protected)
+├── components/
+│   └── ui/
+│       └── button.tsx         # shadcn/ui Button component
+├── lib/
+│   ├── constants.ts           # App-wide constants (webhook URLs, Stripe version)
+│   ├── utils.ts               # Tailwind cn() helper
+│   └── api-logger.ts          # API request/response logger
+├── public/                    # Static assets
+└── styles/
+    └── globals.css            # Tailwind v4 base styles + CSS variables
 ```
+
+---
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js 18+
-- pnpm (recommended) or npm
+- pnpm (`npm install -g pnpm`)
+- A [Stripe](https://stripe.com) account with Terminal enabled
 
-### Installation
-
-1. Clone the repository:
-
-```bash
-git clone <repository-url>
-cd kaeso-legacy
-```
-
-2. Install dependencies:
+### 1. Install dependencies
 
 ```bash
 pnpm install
 ```
 
-3. Run the development server:
+### 2. Set up environment variables
+
+Create a `.env.local` file in the project root:
+
+```env
+# Stripe
+STRIPE_SECRET_KEY=sk_test_xxxxxxxxxxxxx
+
+# Internal API security (hourly rotating hash)
+SECRET_SALT=your_super_secret_salt_here
+
+# Payout page access token
+PAYOUT_ACCESS_TOKEN=your_secure_bearer_token_here
+
+# (Production only) Allowed request origins
+# ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
+```
+
+Generate secure values with:
+
+```bash
+openssl rand -base64 32
+```
+
+See [ENV_SETUP.md](./ENV_SETUP.md) for full details on each variable.
+
+### 3. Run the development server
 
 ```bash
 pnpm dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Form Steps
+---
 
-1. **Personal Information**: Basic details, marital status, children
-2. **Contact Details**: Address and contact information
-3. **Assets & Property**: Real estate, financial assets, personal property
-4. **Beneficiaries**: Who will inherit the estate
-5. **Executor & Guardian**: Estate executor and child guardianship
-6. **Review & Submit**: Final review and submission
+## Available Scripts
 
-## API Endpoints
+| Command | Description |
+|---|---|
+| `pnpm dev` | Start development server at `http://localhost:3000` |
+| `pnpm build` | Build the production application |
+| `pnpm start` | Start the production server |
+| `pnpm lint` | Run ESLint |
 
-### POST /api/will/submit-will
+---
 
-Submits will data to the webhook endpoint.
+## Pages
 
-**Request Body:**
+### `/` — Landing Page
+Tour booking landing page for Da Nang experiences. Visitors can submit a booking enquiry via a form that sends data to the configured webhook (`BOOKING_WEBHOOK_URL`).
 
-```json
-{
-  "personal": { ... },
-  "contact": { ... },
-  "assets": { ... },
-  "beneficiaries": [ ... ],
-  "executor": { ... },
-  "specialInstructions": "...",
-  "additionalNotes": "..."
-}
+### `/terminal` — Stripe Terminal
+In-person POS interface powered by the Stripe Terminal JS SDK. Supports:
+- Reader discovery and connection
+- Product/price lookup from Stripe
+- Payment intent creation and collection
+- Real-time event log
+
+### `/payout` — Payout Dashboard (Protected)
+Internal dashboard displaying Stripe payout summaries and balance transactions. Protected by three security layers — see [Security](#security) below.
+
+Access via:
+```
+http://localhost:3000/payout?auth=YOUR_PAYOUT_ACCESS_TOKEN
 ```
 
-### POST /api/generate-pdf
+### `/thank-you` — Booking Confirmation
+Post-submission confirmation page shown after a successful booking enquiry.
 
-Generates PDF document from will data.
+### `/maintenance` — Maintenance Mode
+Static maintenance page for use during deployments or planned downtime.
 
-### GET /api/payout/summary
+---
 
-**Secured Endpoint** - Retrieves payout summary and transaction data from Stripe.
+## API Routes
 
-**Security Requirements:**
-- Origin/Referer validation
-- API key in `x-internal-key` header
+| Route | Method | Description |
+|---|---|---|
+| `/api/terminal/connection-token` | POST | Issues a Stripe Terminal connection token |
+| `/api/terminal/payment-intent` | POST | Creates a new payment intent |
+| `/api/terminal/process-payment` | POST | Processes a collected payment |
+| `/api/terminal/reader-process-payment` | POST | Triggers reader-side payment processing |
+| `/api/terminal/price` | GET | Fetches product prices from Stripe |
+| `/api/terminal/log` | POST | Records terminal events |
+| `/api/payout/summary` | GET | Returns payout summary data (protected) |
 
-**Query Parameters:**
-- `po_id` (optional): Specific payout ID to filter transactions
-- `limit` (optional): Number of transactions to retrieve (default: 100)
+---
 
-**Response:**
+## Security
 
-```json
-{
-  "transactions": [...],
-  "summary": {
-    "total_amount": 0,
-    "total_fees": 0,
-    "total_net": 0,
-    "transaction_count": 0
-  },
-  "payout": { ... },
-  "balance": { ... }
-}
-```
+The `/payout` page and `/api/payout/summary` endpoint use three independent security layers:
 
-## Configuration
+1. **Page-level token** — Bearer token checked in `getServerSideProps` before rendering. Pass via `?auth=TOKEN` or `Authorization: Bearer TOKEN` header.
+2. **Origin/Referer check** — API validates that requests originate from an allowed domain. Localhost is automatically permitted in development.
+3. **Hourly rotating hash** — An HMAC-SHA256 hash derived from `SECRET_SALT` + current UTC date-hour is generated server-side on page load and sent as `x-internal-key` on API requests. The hash rotates automatically every hour.
 
-### Webhook URL
+See [ENV_SETUP.md](./ENV_SETUP.md) and [HASH_AUTH_SETUP.md](./HASH_AUTH_SETUP.md) for full details.
 
-The form submission webhook URL is configured in `/pages/api/will/submit-will.js`:
+---
 
-```javascript
-const webhookUrl =
-  "https://workflow.pixelcollab.co/webhook/kaeso-webhook-submission";
-```
+## Docker
 
-### Environment Variables
+Two Dockerfiles are provided:
 
-Create a `.env.local` file for environment-specific configuration. See [ENV_SETUP.md](./ENV_SETUP.md) for detailed setup instructions.
+| File | Purpose |
+|---|---|
+| `Dockerfile.prod` | Optimised multi-stage production build (non-root user, BuildKit cache) |
+| `Dockerfile.uat` | UAT/staging build |
 
-**Required Variables:**
-
-```env
-# Stripe Configuration
-STRIPE_SECRET_KEY=sk_test_xxxxxxxxxxxxx
-
-# Internal API Security
-NEXT_PUBLIC_INTERNAL_API_KEY=your_random_secret_key_here
-
-# Payout Page Access
-PAYOUT_ACCESS_TOKEN=your_secure_bearer_token_here
-
-# Legacy (Optional)
-NEXT_PUBLIC_API_URL=http://localhost:3000
-WEBHOOK_URL=https://workflow.pixelcollab.co/webhook/kaeso-webhook-submission
-```
-
-## Secure Payout Dashboard
-
-The `/payout` page provides a comprehensive view of Stripe transactions and payouts with **three layers of security**:
-
-### Security Layers
-
-1. **Bearer Token Authentication** - Server-side validation before page render
-2. **Origin/Referer Validation** - API requests validated against allowed domains
-3. **API Key Authentication** - Required header for API access
-
-### Accessing the Payout Page
-
-The payout page requires authentication via **two methods**:
-
-**Method 1: Query Parameter (Browser-Friendly)**
-
-Access directly in your browser by adding the `auth` parameter:
-
-```
-http://localhost:3000/payout?auth=your_token_here
-http://localhost:3000/payout?auth=your_token_here&limit=50&po_id=po_xxx
-```
-
-**Method 2: Bearer Token Header (API Clients)**
+Build and run production image:
 
 ```bash
-curl -H "Authorization: Bearer your_token_here" \
-  "http://localhost:3000/payout?limit=50"
+docker build -f Dockerfile.prod -t swco-www .
+docker run -p 3000:3000 --env-file .env.local swco-www
 ```
 
-For more details and examples, see [ENV_SETUP.md](./ENV_SETUP.md).
+Push scripts:
 
-## Deployment
+```bash
+./push-to-registry-prod.sh   # Push production image
+./push-to-registry-uat.sh    # Push UAT image
+```
 
-### Production (Docker)
+---
 
-For production deployment using Docker and Google Cloud Artifact Registry:
+## External Integrations
 
-1. **Build the Docker image for Linux/AMD64 platform:**
-   ```bash
-   docker build --platform linux/amd64 -t kaeso/kaeso-legacy-ui .
-   ```
+| Service | Purpose |
+|---|---|
+| Stripe API | Payment processing, Terminal, payouts |
+| `workflow.pixelcollab.co` | Booking enquiry webhook receiver |
 
-2. **Tag the image for Google Cloud Artifact Registry:**
-   ```bash
-   docker tag kaeso/kaeso-legacy-ui asia-southeast1-docker.pkg.dev/kaeso-ui/kaeso-legacy-ui/web-image:latest
-   ```
+---
 
-3. **Push the image to the registry:**
-   ```bash
-   docker push asia-southeast1-docker.pkg.dev/kaeso-ui/kaeso-legacy-ui/web-image:latest
-   ```
+## Development Notes
 
-### Vercel (Alternative)
-
-1. Push your code to GitHub
-2. Connect your repository to Vercel
-3. Deploy automatically
-
-### Other Platforms
-
-The project can be deployed to any platform that supports Next.js:
-
-- Netlify
-- AWS Amplify
-- Railway
-- DigitalOcean App Platform
-
-## Customization
-
-### Styling
-
-- Modify `tailwind.config.js` for theme customization
-- Update `styles/globals.css` for global styles
-- Component-specific styles are in each component file
-
-### Form Fields
-
-- Add new fields in the appropriate step component
-- Update validation schemas in `lib/validationSchemas.ts`
-- Modify the form data type as needed
-
-### API Integration
-
-- Update webhook URL in `/pages/api/will/submit-will.js`
-- Modify PDF generation logic in `/pages/api/generate-pdf.js`
-- Add additional API endpoints as needed
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License.
-
-## Support
-
-For support and questions, please contact the development team.
+- The `X-Powered-By` header is removed in `next.config.js` for security.
+- Images are optimised for WebP/AVIF and served from `kaesolegacy.com` and localhost.
+- Add new shadcn/ui components with: `npx shadcn@latest add <component>`
+- CSS design tokens (colors, radius, etc.) are defined as CSS variables in [styles/globals.css](styles/globals.css).
