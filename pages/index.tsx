@@ -1,20 +1,19 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { BOOKING_WEBHOOK_URL } from '../lib/constants';
+import { CONSULTATION_WEBHOOK_URL } from '../lib/constants';
 
-const DaNangLandingPage = () => {
+const ConsultancyLandingPage = () => {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
+    company: '',
     email: '',
-    travelDate: '',
-    guests: '1 Guest',
-    tourInterest: '',
+    challenge: '',
     message: '',
-    personalized: false,
+    freeSession: false,
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -29,7 +28,7 @@ const DaNangLandingPage = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await fetch(BOOKING_WEBHOOK_URL, {
+      await fetch(CONSULTATION_WEBHOOK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -40,136 +39,120 @@ const DaNangLandingPage = () => {
     router.push('/thank-you');
   };
 
-  const tours = [
+  const services = [
     {
-      title: 'Ba Na Hills & Golden Bridge',
-      category: 'Mountain',
-      description: 'Walk above the clouds on the iconic Golden Bridge, hands emerging from stone.',
-      price: 45,
-      duration: 'Full day',
-      highlight: 'UNESCO-listed cable car',
+      title: 'Business Strategy',
+      category: 'Strategy',
+      description: 'Growth roadmaps, competitive positioning, and market entry plans built on rigorous analysis.',
+      highlight: 'Market & competitive analysis',
     },
     {
-      title: 'Hoi An Lantern Night',
-      category: 'Culture',
-      description: 'Ancient town ablaze with silk lanterns — best experienced after dark.',
-      price: 35,
-      duration: 'Evening',
-      highlight: 'Ancient Town walk included',
+      title: 'Operational Excellence',
+      category: 'Operations',
+      description: 'Identify inefficiencies, streamline workflows, and build systems that scale with your business.',
+      highlight: 'Process design & optimisation',
     },
     {
-      title: 'Marble Mountain + Monkey Mountain',
-      category: 'Adventure',
-      description: 'Cave pagodas, Buddhist shrines, and 360° coastal panoramas.',
-      price: 40,
-      duration: 'Half day',
-      highlight: 'Sunrise option available',
+      title: 'Financial Advisory',
+      category: 'Finance',
+      description: 'Financial modelling, cost structure review, and investment planning for sustainable growth.',
+      highlight: 'Modelling & scenario planning',
     },
     {
-      title: 'Da Nang Street Food Tour',
-      category: 'Food',
-      description: 'Mì Quảng, Bánh Mì, Bún Bò Huế — the dishes locals actually eat.',
-      price: 30,
-      duration: '3 hours',
-      highlight: '7+ local stops',
+      title: 'Digital Transformation',
+      category: 'Digital',
+      description: 'Technology strategy and adoption roadmaps that modernise operations without disrupting the business.',
+      highlight: 'Tech stack & change management',
     },
     {
-      title: 'My Son Sanctuary',
-      category: 'Heritage',
-      description: '1,500-year-old Cham temples hidden in a jungle valley.',
-      price: 50,
-      duration: 'Full day',
-      highlight: 'Expert historian guide',
+      title: 'Market Entry — SEA',
+      category: 'Expansion',
+      description: 'Navigate Southeast Asian markets with confidence. Regulatory, cultural, and commercial guidance.',
+      highlight: 'Singapore, MY, TH, ID, VN',
     },
   ];
 
   const whyPoints = [
     {
       num: '01',
-      title: 'Three worlds, thirty minutes apart',
+      title: 'Southeast Asia specialists',
       description:
-        'My Khe Beach at breakfast. Ba Na Hills by noon. Hoi An by evening. No other city in Vietnam packs this much in.',
+        'Fifteen years of in-market experience across Singapore, Malaysia, Thailand, Indonesia, and Vietnam. We know the regulatory environment, the culture, and the contacts.',
     },
     {
       num: '02',
-      title: 'Guides who live here',
+      title: 'Data-driven, not opinion-driven',
       description:
-        "Every tour is led by a Da Nang local. They know the shortcut to the viewpoint before the crowds arrive.",
+        'Every recommendation is backed by quantitative analysis and industry benchmarks. You get a clear business case, not a deck of slides.',
     },
     {
       num: '03',
-      title: 'No hidden costs, no pressure',
+      title: 'We stay until it works',
       description:
-        "Prices are per person, all-inclusive. We'll pick you up, drop you off, and handle every detail in between.",
+        "Strategy without implementation is just advice. We work alongside your team through execution and measure outcomes — not just outputs.",
     },
   ];
 
   const testimonials = [
     {
-      quote: 'The food tour alone was worth the trip. Our guide took us places no guidebook mentions.',
-      author: 'Amy L.',
-      location: 'Sydney, Australia',
-      rating: 5,
-      tour: 'Street Food',
+      quote: 'SWCO helped us enter the Singapore market six months faster than we projected. Their local network alone was worth the engagement.',
+      author: 'James R.',
+      location: 'CEO, FinTech Scale-up',
+      service: 'Market Entry',
     },
     {
-      quote: 'Organised, punctual, and genuinely fun. Our guide made Ba Na Hills magical, not just a tick-off.',
-      author: 'Kenji M.',
-      location: 'Tokyo, Japan',
-      rating: 5,
-      tour: 'Ba Na Hills',
+      quote: 'The operational review uncovered $1.2M in annualised savings we had no visibility on. Paid back the engagement fee in the first quarter.',
+      author: 'Priya N.',
+      location: 'COO, Regional Retail Group',
+      service: 'Operations',
     },
     {
-      quote: "We landed with no plan. 24 hours later we'd seen everything we came to Vietnam for.",
-      author: 'Sarah K.',
-      location: 'Auckland, New Zealand',
-      rating: 5,
-      tour: 'Custom Package',
+      quote: 'Clear thinking, direct communication, and they actually showed up on implementation day. Rare in this industry.',
+      author: 'Marcus T.',
+      location: 'Founder, B2B SaaS',
+      service: 'Strategy',
     },
   ];
 
-  const itinerary = [
+  const process = [
     {
       day: '01',
-      title: 'Arrival & the Sea',
+      title: 'Discovery',
       items: [
-        'Airport pickup',
-        'Hotel check-in',
-        'My Khe Beach — longest stretch of sand in the city',
-        'Dragon Bridge at sunset',
-        'Welcome dinner on Han River',
+        'Stakeholder interviews and business assessment',
+        'Financial and operational data review',
+        'Market and competitive landscape mapping',
+        'Problem statement alignment',
       ],
     },
     {
       day: '02',
-      title: 'Highlands & Ancient Town',
+      title: 'Strategy',
       items: [
-        'Golden Bridge at Ba Na Hills',
-        'French Village & cable car',
-        'Down to Hoi An by afternoon',
-        'Ancient Town walk',
-        'Lantern release on the river',
+        'Insight synthesis and opportunity sizing',
+        'Strategic options development',
+        'Business case modelling',
+        'Roadmap and prioritisation workshop',
       ],
     },
     {
       day: '03',
-      title: 'Local Life & Departure',
+      title: 'Execution',
       items: [
-        'Han Market — local breakfast',
-        'Vietnamese coffee tasting',
-        'Marble Mountains caves',
-        'Street food farewell lunch',
-        'Airport transfer',
+        'Implementation planning and workstream setup',
+        'Embedded support with your team',
+        'Progress tracking and course correction',
+        'Capability building and knowledge transfer',
       ],
     },
   ];
 
   const categoryStyle: Record<string, string> = {
-    Mountain: 'bg-[#1B3A5C] text-[#A6E3E9]',
-    Culture: 'bg-[#71C9CE] text-[#0F2647]',
-    Adventure: 'bg-[#0F2647] text-[#CBF1F5]',
-    Food: 'bg-[#5FB4BA] text-white',
-    Heritage: 'bg-[#254d7a] text-[#CBF1F5]',
+    Strategy: 'bg-[#1B3A5C] text-[#A6E3E9]',
+    Operations: 'bg-[#71C9CE] text-[#0F2647]',
+    Finance: 'bg-[#0F2647] text-[#CBF1F5]',
+    Digital: 'bg-[#5FB4BA] text-white',
+    Expansion: 'bg-[#254d7a] text-[#CBF1F5]',
   };
 
   const cardAccent: string[] = [
@@ -183,10 +166,10 @@ const DaNangLandingPage = () => {
   return (
     <>
       <Head>
-        <title>Da Nang Tours — Golden Bridge, Hoi An & Street Food Experiences</title>
+        <title>SWCO Consulting — Business Strategy & Advisory, Southeast Asia</title>
         <meta
           name="description"
-          content="Local-led tours in Da Nang, Vietnam. Golden Bridge, Hoi An lanterns, street food, and My Son Sanctuary — from $30 per person."
+          content="SWCO is a business consultancy specialising in strategy, operations, and market entry across Southeast Asia. Based in Singapore."
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
@@ -195,26 +178,26 @@ const DaNangLandingPage = () => {
       <nav className="bg-white/95 backdrop-blur-sm shadow-sm fixed w-full z-30 top-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 md:h-20">
-            <span className="font-display text-xl md:text-2xl font-bold theme-logo">
-              Da Nang Tours
+            <span className="font-display text-xl md:text-2xl font-bold theme-logo text-[#0F2647]">
+              SWCO Consulting
             </span>
 
             {/* Desktop nav */}
             <div className="hidden md:flex items-center space-x-8">
-              {['home', 'tours', 'about', 'contact'].map(link => (
+              {[['home', 'Home'], ['services', 'Services'], ['about', 'About'], ['contact', 'FAQ']].map(([id, label]) => (
                 <a
-                  key={link}
-                  href={`#${link}`}
-                  className="text-gray-600 theme-nav-link font-medium transition text-sm capitalize"
+                  key={id}
+                  href={`#${id}`}
+                  className="text-gray-600 hover:text-[#1B3A5C] font-medium transition text-sm"
                 >
-                  {link}
+                  {label}
                 </a>
               ))}
               <a
-                href="#booking"
+                href="#consultation"
                 className="bg-[#1B3A5C] hover:bg-[#0F2647] text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition duration-200 shadow-sm"
               >
-                Book Now
+                Book a Call
               </a>
             </div>
 
@@ -241,22 +224,22 @@ const DaNangLandingPage = () => {
         {isMenuOpen && (
           <div className="md:hidden bg-white border-t border-gray-100">
             <div className="px-4 py-4 space-y-1">
-              {['home', 'tours', 'about', 'contact'].map(link => (
+              {[['home', 'Home'], ['services', 'Services'], ['about', 'About'], ['contact', 'FAQ']].map(([id, label]) => (
                 <a
-                  key={link}
-                  href={`#${link}`}
+                  key={id}
+                  href={`#${id}`}
                   onClick={() => setIsMenuOpen(false)}
-                  className="block text-gray-700 font-medium py-2.5 capitalize text-sm"
+                  className="block text-gray-700 font-medium py-2.5 text-sm"
                 >
-                  {link}
+                  {label}
                 </a>
               ))}
               <a
-                href="#booking"
+                href="#consultation"
                 onClick={() => setIsMenuOpen(false)}
                 className="block bg-[#1B3A5C] text-white px-4 py-3 rounded-lg font-semibold text-center text-sm mt-3"
               >
-                Book Now
+                Book a Call
               </a>
             </div>
           </div>
@@ -277,7 +260,7 @@ const DaNangLandingPage = () => {
             className="font-display font-bold text-white leading-none whitespace-nowrap"
             style={{ fontSize: 'clamp(6rem, 22vw, 20rem)', opacity: 0.045, letterSpacing: '0.06em' }}
           >
-            DA NANG
+            SWCO
           </span>
         </div>
 
@@ -286,31 +269,31 @@ const DaNangLandingPage = () => {
 
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto pt-28 pb-20">
           <div className="inline-block bg-[#71C9CE]/15 border border-[#71C9CE]/30 text-[#A6E3E9] text-xs font-semibold uppercase tracking-widest px-4 py-1.5 rounded-full mb-8">
-            Local-led · All-inclusive · Since 2022
+            Strategy · Operations · Market Entry · Singapore
           </div>
 
           <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-[1.1]">
-            Golden Bridge at sunrise.{' '}
-            <span className="text-[#71C9CE]">Hoi An lanterns</span> at dusk.
+            Sharper strategy.{' '}
+            <span className="text-[#71C9CE]">Faster execution.</span>
           </h1>
 
           <p className="text-base md:text-xl text-gray-300 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Beach, mountains, and a 15th-century ancient town — all within 30 minutes of each other.
-            We'll show you all three.
+            We help ambitious businesses in Southeast Asia grow with purpose — from market entry and operational
+            redesign to digital transformation and financial clarity.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <a
-              href="#tours"
+              href="#services"
               className="bg-[#71C9CE] hover:bg-[#5FB4BA] text-[#0F2647] px-8 py-4 rounded-lg font-bold text-sm md:text-base transition duration-200 shadow-xl"
             >
-              Explore Tours
+              Our Services
             </a>
             <a
-              href="#booking"
+              href="#consultation"
               className="border border-white/25 hover:border-white/50 text-white px-8 py-4 rounded-lg font-bold text-sm md:text-base transition duration-200"
             >
-              Plan My Trip →
+              Book a Free Call →
             </a>
           </div>
         </div>
@@ -328,31 +311,30 @@ const DaNangLandingPage = () => {
         <div className="max-w-5xl mx-auto px-4">
           <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-2.5 text-sm text-gray-500">
             <div className="flex items-center gap-1.5">
-              <span className="text-yellow-400 text-sm tracking-tight">★★★★★</span>
-              <span className="font-semibold text-gray-800">4.9</span>
-              <span>Google Reviews</span>
+              <span className="font-semibold text-gray-800">15+</span>
+              <span>Years in Southeast Asia</span>
             </div>
             <span className="hidden sm:block text-gray-200">|</span>
             <div className="flex items-center gap-1.5">
-              <span className="font-semibold text-gray-800">5,000+</span>
-              <span>Happy Travelers</span>
+              <span className="font-semibold text-gray-800">80+</span>
+              <span>Engagements Delivered</span>
             </div>
             <span className="hidden sm:block text-gray-200">|</span>
             <div className="flex items-center gap-1.5">
               <span className="font-semibold text-gray-800">5</span>
-              <span>Signature Tours</span>
+              <span>Markets Covered</span>
             </div>
             <span className="hidden sm:block text-gray-200">|</span>
             <div className="flex items-center gap-1.5">
-              <span className="font-semibold text-gray-800">4+</span>
-              <span>Years Experience</span>
+              <span className="font-semibold text-gray-800">$200M+</span>
+              <span>Value Created for Clients</span>
             </div>
             <span className="hidden sm:block text-gray-200">|</span>
             <div className="flex items-center gap-1.5">
               <svg className="w-3.5 h-3.5 text-[#71C9CE]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
-              <span>VNAT Licensed</span>
+              <span>Singapore Registered</span>
             </div>
           </div>
         </div>
@@ -362,9 +344,9 @@ const DaNangLandingPage = () => {
       <section className="py-20 md:py-28 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-14">
-            <p className="text-[#71C9CE] font-semibold text-xs uppercase tracking-widest mb-3">Why Da Nang</p>
+            <p className="text-[#71C9CE] font-semibold text-xs uppercase tracking-widest mb-3">Why SWCO</p>
             <h2 className="font-display text-3xl md:text-5xl font-bold text-gray-900 max-w-lg leading-tight">
-              Three worlds, thirty minutes apart
+              Built for businesses that mean it
             </h2>
           </div>
 
@@ -382,18 +364,18 @@ const DaNangLandingPage = () => {
         </div>
       </section>
 
-      {/* ── Tours ── */}
-      <section id="tours" className="py-20 md:py-28 bg-gray-50">
+      {/* ── Services ── */}
+      <section id="services" className="py-20 md:py-28 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-14">
-            <p className="text-[#71C9CE] font-semibold text-xs uppercase tracking-widest mb-3">Our Tours</p>
+            <p className="text-[#71C9CE] font-semibold text-xs uppercase tracking-widest mb-3">Our Services</p>
             <h2 className="font-display text-3xl md:text-5xl font-bold text-gray-900 max-w-xl leading-tight">
-              Five experiences worth flying here for
+              Five practice areas, one integrated team
             </h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {tours.map((tour, i) => (
+            {services.map((svc, i) => (
               <div
                 key={i}
                 className="bg-white rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col"
@@ -403,28 +385,23 @@ const DaNangLandingPage = () => {
 
                 <div className="p-5 flex flex-col flex-1">
                   <div className="flex items-start justify-between mb-3 gap-2">
-                    <span className={`text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full flex-shrink-0 ${categoryStyle[tour.category]}`}>
-                      {tour.category}
-                    </span>
-                    <span className="text-xl font-bold text-gray-900 font-display leading-none whitespace-nowrap">
-                      ${tour.price}
-                      <span className="text-xs font-normal text-gray-400">/pp</span>
+                    <span className={`text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full flex-shrink-0 ${categoryStyle[svc.category]}`}>
+                      {svc.category}
                     </span>
                   </div>
 
-                  <h3 className="font-display text-base font-bold text-gray-900 mb-2 leading-snug">{tour.title}</h3>
-                  <p className="text-gray-500 text-sm mb-4 flex-1 leading-relaxed">{tour.description}</p>
+                  <h3 className="font-display text-base font-bold text-gray-900 mb-2 leading-snug">{svc.title}</h3>
+                  <p className="text-gray-500 text-sm mb-4 flex-1 leading-relaxed">{svc.description}</p>
 
                   <div className="flex items-center justify-between pt-4 border-t border-gray-50">
                     <p className="text-xs text-gray-400">
-                      <span className="text-gray-600 font-medium">{tour.duration}</span>
-                      {' · '}{tour.highlight}
+                      <span className="text-gray-600 font-medium">{svc.highlight}</span>
                     </p>
                     <a
-                      href="#booking"
+                      href="#consultation"
                       className="text-xs font-semibold text-[#1B3A5C] hover:text-[#71C9CE] transition-colors"
                     >
-                      Book →
+                      Enquire →
                     </a>
                   </div>
                 </div>
@@ -434,42 +411,43 @@ const DaNangLandingPage = () => {
             {/* Custom CTA card */}
             <div className="bg-[#0F2647] rounded-2xl p-5 flex flex-col justify-between text-white sm:col-span-2 lg:col-span-1">
               <div>
-                <p className="text-[#71C9CE] text-xs font-bold uppercase tracking-widest mb-3">Custom</p>
+                <p className="text-[#71C9CE] text-xs font-bold uppercase tracking-widest mb-3">Bespoke</p>
                 <h3 className="font-display text-xl font-bold mb-3 leading-tight">
-                  Can't decide?<br />We'll build your itinerary.
+                  Have a specific challenge?<br />Let's scope it together.
                 </h3>
                 <p className="text-gray-400 text-sm leading-relaxed">
-                  Tell us your dates and interests — we'll send a free plan within 24 hours.
+                  Every business is different. Tell us what you're facing — we'll design an engagement around your
+                  situation.
                 </p>
               </div>
               <a
-                href="#booking"
+                href="#consultation"
                 className="mt-6 inline-block bg-[#71C9CE] hover:bg-[#5FB4BA] text-[#0F2647] font-bold py-3 px-5 rounded-lg text-sm transition duration-200 text-center"
               >
-                Get a free plan
+                Start a conversation
               </a>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── 3-Day Itinerary — dark navy ── */}
+      {/* ── Process — dark navy ── */}
       <section className="py-20 md:py-28 bg-[#0F2647]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-14">
-            <p className="text-[#71C9CE] font-semibold text-xs uppercase tracking-widest mb-3">Sample Itinerary</p>
+            <p className="text-[#71C9CE] font-semibold text-xs uppercase tracking-widest mb-3">How We Work</p>
             <h2 className="font-display text-3xl md:text-5xl font-bold text-white max-w-xl leading-tight">
-              3 perfect days in Da Nang
+              From first call to measurable results
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {itinerary.map((d, i) => (
+            {process.map((d, i) => (
               <div
                 key={i}
                 className="border border-white/10 rounded-2xl p-6 md:p-7 hover:border-[#71C9CE]/40 transition-colors duration-300"
               >
-                <div className="font-display text-6xl font-bold text-white  leading-none mb-5 select-none">
+                <div className="font-display text-6xl font-bold text-white leading-none mb-5 select-none">
                   {d.day}
                 </div>
                 <h3 className="text-white font-bold text-lg mb-5 font-display">{d.title}</h3>
@@ -487,13 +465,13 @@ const DaNangLandingPage = () => {
         </div>
       </section>
 
-      {/* ── Reviews ── */}
+      {/* ── Client Testimonials ── */}
       <section className="py-20 md:py-28 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-14">
-            <p className="text-[#71C9CE] font-semibold text-xs uppercase tracking-widest mb-3">Reviews</p>
+            <p className="text-[#71C9CE] font-semibold text-xs uppercase tracking-widest mb-3">Client Outcomes</p>
             <h2 className="font-display text-3xl md:text-5xl font-bold text-gray-900 max-w-xl leading-tight">
-              From the people who've been there
+              What our clients say
             </h2>
           </div>
 
@@ -501,7 +479,7 @@ const DaNangLandingPage = () => {
             {testimonials.map((t, i) => (
               <div key={i} className="bg-gray-50 rounded-2xl p-6 md:p-7 flex flex-col">
                 <div className="flex gap-0.5 mb-4">
-                  {[...Array(t.rating)].map((_, j) => (
+                  {[...Array(5)].map((_, j) => (
                     <svg key={j} className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
@@ -514,7 +492,7 @@ const DaNangLandingPage = () => {
                     <p className="text-gray-400 text-xs mt-0.5">{t.location}</p>
                   </div>
                   <span className="text-xs text-[#5FB4BA] font-medium bg-[#E3FDFD] px-2.5 py-1 rounded-full">
-                    {t.tour}
+                    {t.service}
                   </span>
                 </div>
               </div>
@@ -523,17 +501,18 @@ const DaNangLandingPage = () => {
         </div>
       </section>
 
-      {/* ── Booking Form ── */}
-      <section id="booking" className="py-20 md:py-28 bg-gray-50">
+      {/* ── Consultation Form ── */}
+      <section id="consultation" className="py-20 md:py-28 bg-gray-50">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-12">
             <div className="mb-8">
-              <p className="text-[#71C9CE] font-semibold text-xs uppercase tracking-widest mb-3">Free Quote</p>
+              <p className="text-[#71C9CE] font-semibold text-xs uppercase tracking-widest mb-3">Free Consultation</p>
               <h2 className="font-display text-3xl md:text-4xl font-bold text-gray-900 leading-tight mb-3">
-                Plan your trip — we'll handle the rest
+                Tell us about your challenge
               </h2>
               <p className="text-gray-500 text-sm leading-relaxed">
-                Tell us when you're arriving and what you'd like to do. We'll send a personalised itinerary within 24 hours, no charge.
+                Share a bit about your business and what you're working through. We'll come back within one business
+                day with a clear perspective — no charge, no obligation.
               </p>
             </div>
 
@@ -548,91 +527,77 @@ const DaNangLandingPage = () => {
                     onChange={handleChange}
                     required
                     className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#71C9CE] focus:border-[#71C9CE] outline-none text-sm transition"
-                    placeholder="John Doe"
+                    placeholder="Jane Smith"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Email</label>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Company</label>
                   <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
+                    type="text"
+                    name="company"
+                    value={formData.company}
                     onChange={handleChange}
                     required
                     className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#71C9CE] focus:border-[#71C9CE] outline-none text-sm transition"
-                    placeholder="john@example.com"
+                    placeholder="Acme Pte. Ltd."
                   />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Travel Dates</label>
-                  <input
-                    type="date"
-                    name="travelDate"
-                    value={formData.travelDate}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#71C9CE] focus:border-[#71C9CE] outline-none text-sm transition"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Guests</label>
-                  <select
-                    name="guests"
-                    value={formData.guests}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#71C9CE] focus:border-[#71C9CE] outline-none text-sm transition"
-                  >
-                    <option>1 Guest</option>
-                    <option>2 Guests</option>
-                    <option>3-5 Guests</option>
-                    <option>6+ Guests</option>
-                  </select>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Tour Interest</label>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Work Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#71C9CE] focus:border-[#71C9CE] outline-none text-sm transition"
+                  placeholder="jane@company.com"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Primary Challenge</label>
                 <select
-                  name="tourInterest"
-                  value={formData.tourInterest}
+                  name="challenge"
+                  value={formData.challenge}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#71C9CE] focus:border-[#71C9CE] outline-none text-sm transition"
                 >
-                  <option value="">Select a tour...</option>
-                  <option>Ba Na Hills & Golden Bridge</option>
-                  <option>Hoi An Lantern Night</option>
-                  <option>Marble Mountain Adventure</option>
-                  <option>Street Food Tour</option>
-                  <option>My Son Sanctuary</option>
-                  <option>Custom Package</option>
+                  <option value="">Select an area...</option>
+                  <option>Business Strategy & Growth</option>
+                  <option>Operational Efficiency</option>
+                  <option>Financial Planning & Advisory</option>
+                  <option>Digital Transformation</option>
+                  <option>Market Entry — Southeast Asia</option>
+                  <option>Other / Not Sure Yet</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Message</label>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Tell Us More</label>
                 <textarea
                   name="message"
                   value={formData.message}
                   onChange={handleChange}
                   rows={4}
                   className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#71C9CE] focus:border-[#71C9CE] outline-none text-sm transition resize-none"
-                  placeholder="Tell us about your travel preferences..."
+                  placeholder="Describe what you're working on and what a successful outcome looks like..."
                 />
               </div>
 
               <div className="flex items-center gap-3">
                 <input
                   type="checkbox"
-                  id="personalized"
-                  name="personalized"
-                  checked={formData.personalized}
+                  id="freeSession"
+                  name="freeSession"
+                  checked={formData.freeSession}
                   onChange={handleChange}
                   className="w-4 h-4 rounded border-gray-300 accent-[#71C9CE]"
                 />
-                <label htmlFor="personalized" className="text-sm text-gray-600">
-                  I'd like a fully personalised itinerary
+                <label htmlFor="freeSession" className="text-sm text-gray-600">
+                  I'd like to schedule a free 30-minute strategy call
                 </label>
               </div>
 
@@ -641,7 +606,7 @@ const DaNangLandingPage = () => {
                 disabled={isSubmitting}
                 className="w-full bg-[#1B3A5C] hover:bg-[#0F2647] disabled:opacity-60 text-white font-bold py-4 px-8 rounded-lg text-sm transition duration-200 shadow-sm mt-2"
               >
-                {isSubmitting ? 'Sending...' : 'Get My Free Quote →'}
+                {isSubmitting ? 'Sending...' : 'Submit Enquiry →'}
               </button>
             </form>
           </div>
@@ -653,23 +618,25 @@ const DaNangLandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
-              <p className="text-[#71C9CE] font-semibold text-xs uppercase tracking-widest mb-3">About Us</p>
+              <p className="text-[#71C9CE] font-semibold text-xs uppercase tracking-widest mb-3">About SWCO</p>
               <h2 className="font-display text-3xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-                Da Nang locals, not tour operators
+                Practitioners, not just advisors
               </h2>
               <p className="text-gray-600 mb-5 leading-relaxed text-sm md:text-base">
-                We grew up here. We eat at the spots we take you to. We know which viewpoint is empty at 6am and which
-                market stall has been making Bánh Mì since 1985.
+                SWCO was founded by operators who spent a decade-and-a-half building and scaling businesses across
+                Southeast Asia before moving into advisory. We know what it takes to execute — not just what to put
+                on a slide.
               </p>
               <p className="text-gray-600 mb-8 leading-relaxed text-sm md:text-base">
-                Every guide on our team is a certified Da Nang local — fluent in English, passionate about their city,
-                and genuinely invested in making your trip memorable.
+                Our team combines strategy consulting, corporate finance, and in-market operating experience.
+                We work with founders, scale-ups, and corporates expanding into the region — wherever the
+                complexity is highest.
               </p>
               <div className="grid grid-cols-3 gap-4">
                 {[
-                  { val: '5,000+', label: 'Happy Travelers' },
-                  { val: '4.9★', label: 'Average Rating' },
-                  { val: '10+', label: 'Years Experience' },
+                  { val: '80+', label: 'Engagements' },
+                  { val: '$200M+', label: 'Value Created' },
+                  { val: '5', label: 'SEA Markets' },
                 ].map((s, i) => (
                   <div key={i}>
                     <div className="font-display text-2xl md:text-3xl font-bold text-[#1B3A5C]">{s.val}</div>
@@ -680,11 +647,11 @@ const DaNangLandingPage = () => {
               <div className="mt-8 flex flex-wrap gap-5">
                 <div className="flex items-center gap-2 text-sm text-gray-500">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#71C9CE]" />
-                  VNAT Tourism License
+                  Singapore Registered
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-500">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#71C9CE]" />
-                  Certified Local Guides
+                  In-market across SEA
                 </div>
               </div>
             </div>
@@ -698,10 +665,14 @@ const DaNangLandingPage = () => {
               </div>
               {/* Floating badge */}
               <div className="absolute -bottom-4 -left-4 bg-white shadow-xl rounded-xl p-4 flex items-center gap-3">
-                <span className="text-2xl">🌟</span>
+                <div className="w-8 h-8 rounded-full bg-[#71C9CE]/20 flex items-center justify-center shrink-0">
+                  <svg className="w-4 h-4 text-[#1B3A5C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
                 <div>
-                  <p className="text-xs text-gray-400 leading-none mb-0.5">TripAdvisor</p>
-                  <p className="font-bold text-gray-900 text-sm leading-none">Travelers' Choice</p>
+                  <p className="text-xs text-gray-400 leading-none mb-0.5">Since 2010</p>
+                  <p className="font-bold text-gray-900 text-sm leading-none">15 Years of SEA Experience</p>
                 </div>
               </div>
             </div>
@@ -714,26 +685,26 @@ const DaNangLandingPage = () => {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-12">
             <p className="text-[#71C9CE] font-semibold text-xs uppercase tracking-widest mb-3">FAQ</p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-gray-900 leading-tight">Before you book</h2>
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-gray-900 leading-tight">Common questions</h2>
           </div>
 
           <div className="space-y-3">
             {[
               {
-                q: 'Do I need a visa to visit Vietnam?',
-                a: 'Most travelers from Asia, Australia, and New Zealand can get a visa on arrival or e-visa. Check with your local Vietnamese embassy for specific requirements.',
+                q: 'What size companies do you work with?',
+                a: 'We work with businesses at different stages — from growth-stage startups raising their Series B to established SMEs and regional subsidiaries of multinationals. The common thread is ambition and a willingness to do the work.',
               },
               {
-                q: "What's the best time to visit Da Nang?",
-                a: 'February to May offers the best weather with warm temperatures and minimal rain. However, Da Nang is beautiful year-round.',
+                q: 'How long does a typical engagement last?',
+                a: 'Strategy engagements typically run 6–12 weeks. Implementation support is scoped separately based on complexity. We\'re flexible and structure projects around your timeline and resources.',
               },
               {
-                q: 'Is English widely spoken?',
-                a: 'In tourist areas and with our guides, yes. All our tours are led by fluent English-speaking locals.',
+                q: 'Do you work across Southeast Asia or just Singapore?',
+                a: 'We\'re headquartered in Singapore but have in-market presence and active client relationships across Malaysia, Thailand, Indonesia, and Vietnam. Market entry into any of these markets is a core part of our practice.',
               },
               {
-                q: 'What currency should I bring?',
-                a: 'Vietnamese Dong (VND) is the local currency, but USD is widely accepted. ATMs are readily available throughout the city.',
+                q: 'What does the free consultation involve?',
+                a: 'A 30-minute call with one of our senior consultants. We\'ll understand your challenge, share an initial perspective, and discuss whether — and how — we might be able to help. No pitch, no obligation.',
               },
             ].map((faq, i) => (
               <details key={i} className="bg-white rounded-xl border border-gray-100 group">
@@ -760,18 +731,13 @@ const DaNangLandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
             <div className="col-span-2 md:col-span-1">
-              <h3 className="font-display text-lg font-bold mb-3 text-[#71C9CE]">Da Nang Tours</h3>
+              <h3 className="font-display text-lg font-bold mb-3 text-[#71C9CE]">SWCO Consulting</h3>
               <p className="text-gray-400 text-sm mb-5 leading-relaxed">
-                Local-led tours and authentic Vietnamese experiences since 2014.
+                Business strategy and advisory for ambitious companies in Southeast Asia.
               </p>
               <div className="flex space-x-2.5">
                 {[
-                  /* Instagram */
-                  <path key="ig" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />,
-                  /* TikTok */
-                  <path key="tt" d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z" />,
-                  /* YouTube */
-                  <path key="yt" d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />,
+                  <path key="li" d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />,
                 ].map((svgPath, i) => (
                   <a
                     key={i}
@@ -789,7 +755,7 @@ const DaNangLandingPage = () => {
             <div>
               <h4 className="font-semibold text-xs uppercase tracking-wider mb-4 text-gray-300">Quick Links</h4>
               <ul className="space-y-2.5">
-                {[['#home', 'Home'], ['#tours', 'Tours'], ['#about', 'About'], ['#booking', 'Book a Tour']].map(([href, label]) => (
+                {[['#home', 'Home'], ['#services', 'Services'], ['#about', 'About'], ['#consultation', 'Book a Call']].map(([href, label]) => (
                   <li key={href}>
                     <a href={href} className="text-gray-400 hover:text-white text-sm transition">{label}</a>
                   </li>
@@ -798,11 +764,11 @@ const DaNangLandingPage = () => {
             </div>
 
             <div>
-              <h4 className="font-semibold text-xs uppercase tracking-wider mb-4 text-gray-300">Support</h4>
+              <h4 className="font-semibold text-xs uppercase tracking-wider mb-4 text-gray-300">Services</h4>
               <ul className="space-y-2.5">
-                {['FAQ', 'Privacy Policy', 'Terms of Service', 'Cancellation Policy'].map(item => (
+                {['Business Strategy', 'Operational Excellence', 'Financial Advisory', 'Digital Transformation', 'Market Entry — SEA'].map(item => (
                   <li key={item}>
-                    <a href="#" className="text-gray-400 hover:text-white text-sm transition">{item}</a>
+                    <a href="#services" className="text-gray-400 hover:text-white text-sm transition">{item}</a>
                   </li>
                 ))}
               </ul>
@@ -820,8 +786,8 @@ const DaNangLandingPage = () => {
           </div>
 
           <div className="border-t border-white/10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
-            <p>© 2025 Da Nang Tours. All rights reserved.</p>
-            <p>Made with ♥ in Vietnam</p>
+            <p>© 2025 SWCO Consulting. All rights reserved.</p>
+            <p>Based in Singapore · Operating across SEA</p>
           </div>
         </div>
       </footer>
@@ -829,4 +795,4 @@ const DaNangLandingPage = () => {
   );
 };
 
-export default DaNangLandingPage;
+export default ConsultancyLandingPage;
