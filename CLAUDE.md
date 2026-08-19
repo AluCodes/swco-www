@@ -4,10 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Commands
 
-- `npm run dev` - Start development server at http://localhost:3000
-- `npm run build` - Build the production application
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint to check code quality
+- `pnpm install` - Install dependencies (this project uses pnpm, not npm — see `pnpm-lock.yaml`)
+- `pnpm dev` - Start development server at http://localhost:3000
+- `pnpm build` - Build the production application
+- `pnpm start` - Start production server
+- `pnpm lint` - Run ESLint to check code quality
 
 ## Project Architecture
 

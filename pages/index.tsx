@@ -72,6 +72,31 @@ const ConsultancyLandingPage = () => {
     },
   ];
 
+  const coachingOfferings = [
+    {
+      title: 'Online Classes',
+      format: 'Live, cohort-based',
+      description:
+        'Structured group sessions on strategy, finance, and operations fundamentals — built for professionals and business owners who want practical, applicable skills.',
+      points: [
+        'Small cohorts, live instruction',
+        'Real case studies from SEA markets',
+        'Flexible scheduling for working professionals',
+      ],
+    },
+    {
+      title: '1-to-1 Coaching',
+      format: 'One-on-one, tailored',
+      description:
+        'Personalised coaching for founders and executives working through a specific challenge — leadership, growth planning, or a pivotal business decision.',
+      points: [
+        'Matched with a senior consultant',
+        'Sessions built around your goals',
+        'Ongoing support between sessions',
+      ],
+    },
+  ];
+
   const whyPoints = [
     {
       num: '01',
@@ -184,7 +209,7 @@ const ConsultancyLandingPage = () => {
 
             {/* Desktop nav */}
             <div className="hidden md:flex items-center space-x-8">
-              {[['home', 'Home'], ['services', 'Services'], ['about', 'About'], ['contact', 'FAQ']].map(([id, label]) => (
+              {[['home', 'Home'], ['services', 'Services'], ['coaching', 'Coaching'], ['about', 'About'], ['contact', 'FAQ']].map(([id, label]) => (
                 <a
                   key={id}
                   href={`#${id}`}
@@ -224,7 +249,7 @@ const ConsultancyLandingPage = () => {
         {isMenuOpen && (
           <div className="md:hidden bg-white border-t border-gray-100">
             <div className="px-4 py-4 space-y-1">
-              {[['home', 'Home'], ['services', 'Services'], ['about', 'About'], ['contact', 'FAQ']].map(([id, label]) => (
+              {[['home', 'Home'], ['services', 'Services'], ['coaching', 'Coaching'], ['about', 'About'], ['contact', 'FAQ']].map(([id, label]) => (
                 <a
                   key={id}
                   href={`#${id}`}
@@ -431,6 +456,49 @@ const ConsultancyLandingPage = () => {
         </div>
       </section>
 
+      {/* ── Coaching & Classes ── */}
+      <section id="coaching" className="py-20 md:py-28 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-14">
+            <p className="text-[#71C9CE] font-semibold text-xs uppercase tracking-widest mb-3">
+              For Professionals &amp; Business Owners
+            </p>
+            <h2 className="font-display text-3xl md:text-5xl font-bold text-gray-900 max-w-xl leading-tight">
+              Coaching &amp; classes to build the skills yourself
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {coachingOfferings.map((offer, i) => (
+              <div
+                key={i}
+                className="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-100 flex flex-col"
+              >
+                <span className="inline-block text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#1B3A5C] text-[#A6E3E9] mb-4 self-start">
+                  {offer.format}
+                </span>
+                <h3 className="font-display text-xl font-bold text-gray-900 mb-3">{offer.title}</h3>
+                <p className="text-gray-500 text-sm mb-5 leading-relaxed flex-1">{offer.description}</p>
+                <ul className="space-y-2.5 mb-6">
+                  {offer.points.map((point, j) => (
+                    <li key={j} className="flex items-start gap-2.5 text-gray-600 text-sm">
+                      <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#71C9CE] flex-shrink-0" />
+                      {point}
+                    </li>
+                  ))}
+                </ul>
+                <a
+                  href="#consultation"
+                  className="inline-block bg-[#1B3A5C] hover:bg-[#0F2647] text-white font-bold py-3 px-5 rounded-lg text-sm transition duration-200 text-center"
+                >
+                  Reserve a Spot →
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── Process — dark navy ── */}
       <section className="py-20 md:py-28 bg-[#0F2647]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -531,13 +599,12 @@ const ConsultancyLandingPage = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Company</label>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Company (optional)</label>
                   <input
                     type="text"
                     name="company"
                     value={formData.company}
                     onChange={handleChange}
-                    required
                     className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#71C9CE] focus:border-[#71C9CE] outline-none text-sm transition"
                     placeholder="Acme Pte. Ltd."
                   />
@@ -571,6 +638,8 @@ const ConsultancyLandingPage = () => {
                   <option>Financial Planning & Advisory</option>
                   <option>Digital Transformation</option>
                   <option>Market Entry — Southeast Asia</option>
+                  <option>Online Classes</option>
+                  <option>1-to-1 Coaching</option>
                   <option>Other / Not Sure Yet</option>
                 </select>
               </div>
@@ -755,7 +824,7 @@ const ConsultancyLandingPage = () => {
             <div>
               <h4 className="font-semibold text-xs uppercase tracking-wider mb-4 text-gray-300">Quick Links</h4>
               <ul className="space-y-2.5">
-                {[['#home', 'Home'], ['#services', 'Services'], ['#about', 'About'], ['#consultation', 'Book a Call']].map(([href, label]) => (
+                {[['#home', 'Home'], ['#services', 'Services'], ['#coaching', 'Coaching'], ['#about', 'About'], ['#consultation', 'Book a Call']].map(([href, label]) => (
                   <li key={href}>
                     <a href={href} className="text-gray-400 hover:text-white text-sm transition">{label}</a>
                   </li>
