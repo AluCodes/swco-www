@@ -7,4 +7,3 @@ API_BASE_URL=https://your-backend.example.com
 ALLOWED_HOSTS=localhost:3000
 INTERNAL_API_KEY=your_super_secret_salt_here
 PAYOUT_ACCESS_TOKEN=your_secure_bearer_token_here
-CONSULTATION_WEBHOOK_URL=https://workflow.pixelcollab.co/webhook/swco-booking

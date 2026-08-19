@@ -4,5 +4,4 @@ export interface Env {
   ALLOWED_HOSTS?: string;
   INTERNAL_API_KEY: string;
   PAYOUT_ACCESS_TOKEN: string;
-  CONSULTATION_WEBHOOK_URL: string;
 }

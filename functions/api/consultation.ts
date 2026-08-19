@@ -6,7 +6,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   try {
     const body = await request.text();
 
-    await fetch(env.CONSULTATION_WEBHOOK_URL, {
+    await fetch(`${env.API_BASE_URL}/share-and-work-consultation`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body,

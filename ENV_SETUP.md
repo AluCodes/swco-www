@@ -32,8 +32,10 @@ Stripe secret key used server-side by `functions/api/terminal/*` and
 
 ### `API_BASE_URL`
 
-Base URL of the internal backend that stores payment intents and logs
-(`functions/_lib/logger.ts`, `functions/api/terminal/payment-intent.ts`).
+Base URL of the internal backend that stores payment intents, logs, and now
+consultation bookings (`functions/_lib/logger.ts`,
+`functions/api/terminal/payment-intent.ts`,
+`functions/api/consultation.ts` → `${API_BASE_URL}/share-and-work-consultation`).
 Never exposed to the browser — only referenced inside Functions.
 
 ### `INTERNAL_API_KEY`
@@ -68,13 +70,6 @@ Bearer token required to access `/payout`. Checked by
 ```bash
 openssl rand -base64 32
 ```
-
-### `CONSULTATION_WEBHOOK_URL`
-
-The booking-form webhook (`functions/api/consultation.ts` proxies to this).
-Previously hardcoded in `lib/constants.ts` and called directly from the
-browser — moved here specifically so the real endpoint never appears in the
-browser's dev tools; the page only ever calls `/api/consultation`.
 
 ### `ALLOWED_HOSTS` (optional)
 
@@ -113,7 +108,6 @@ Use `pnpm start` whenever you need the `/api/*` endpoints to work locally.
    wrangler pages secret put API_BASE_URL --project-name share-and-work
    wrangler pages secret put INTERNAL_API_KEY --project-name share-and-work
    wrangler pages secret put PAYOUT_ACCESS_TOKEN --project-name share-and-work
-   wrangler pages secret put CONSULTATION_WEBHOOK_URL --project-name share-and-work
    wrangler pages secret put ALLOWED_HOSTS --project-name share-and-work   # optional
    ```
    (or set them via Pages → Settings → Environment variables in the dashboard).
