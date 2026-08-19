@@ -49,3 +49,12 @@ Thumbs.db
 *.wmv
 
 pixelcollab-registry-writer.json
+
+# Next.js static export output
+out/
+
+# Cloudflare Wrangler local state / secrets
+.wrangler/
+.dev.vars
+.dev.vars.*
+!.dev.vars.example

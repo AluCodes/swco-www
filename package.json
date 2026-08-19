@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "wrangler pages dev out",
+    "deploy": "wrangler pages deploy out",
     "lint": "next lint"
   },
   "dependencies": {
@@ -23,6 +24,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260819.1",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/node": "^24.10.4",
     "@types/react": "^19.2.7",
@@ -32,6 +34,7 @@
     "eslint-config-next": "15.4.2",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.18",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "wrangler": "^4.124.0"
   }
 }

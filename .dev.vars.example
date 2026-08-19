@@ -1,0 +1,10 @@
+# Copy to .dev.vars for local `pnpm start` (wrangler pages dev) — never commit .dev.vars itself.
+# In production these are set as Cloudflare Pages secrets instead (dashboard, or
+# `wrangler pages secret put <NAME>`), not read from any file.
+
+STRIPE_SECRET_KEY=sk_test_xxxxxxxxxxxxx
+API_BASE_URL=https://your-backend.example.com
+ALLOWED_HOSTS=localhost:3000
+INTERNAL_API_KEY=your_super_secret_salt_here
+PAYOUT_ACCESS_TOKEN=your_secure_bearer_token_here
+CONSULTATION_WEBHOOK_URL=https://workflow.pixelcollab.co/webhook/swco-booking

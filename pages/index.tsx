@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { CONSULTATION_WEBHOOK_URL } from '../lib/constants';
 
 const ConsultancyLandingPage = () => {
   const router = useRouter();
@@ -28,7 +27,7 @@ const ConsultancyLandingPage = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await fetch(CONSULTATION_WEBHOOK_URL, {
+      await fetch('/api/consultation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),

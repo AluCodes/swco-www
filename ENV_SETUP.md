@@ -1,273 +1,167 @@
 # Environment Variables Setup
 
-This document describes the environment variables required for the application.
+This app builds as a static export (`next build` → `out/`) and is hosted on
+Cloudflare Pages. All server-side logic (Stripe calls, the internal backend,
+the payout gate, the consultation webhook) lives in Cloudflare Pages
+Functions under `functions/`, not in Next.js API routes — the browser only
+ever calls same-origin `/api/...` paths, never external URLs directly.
 
-## Required Environment Variables
+Because of that split, environment variables live in two places:
 
-Create a `.env.local` file in the root directory with the following variables:
+- **`.env.local`** — only read by `next dev`/`next build` for the Next.js
+  pages themselves. Nothing in `pages/` currently needs a secret at build
+  time, so this file is usually unnecessary; keep it only if you add
+  client-facing `NEXT_PUBLIC_*` config later.
+- **Cloudflare Pages Functions env** — read via `context.env` inside
+  `functions/**`, not `process.env`. Locally this comes from a `.dev.vars`
+  file (used by `wrangler pages dev`, i.e. `pnpm start`); in production it's
+  set as Pages secrets/vars via the Cloudflare dashboard or
+  `wrangler pages secret put <NAME>`. **A `.dev.vars`/`.env.local` file is
+  never deployed** — Cloudflare Pages only sees what you configure as
+  project secrets/vars.
 
-### Stripe Configuration
+Copy `.dev.vars.example` to `.dev.vars` to get started locally (gitignored).
 
-```env
-STRIPE_SECRET_KEY=sk_test_xxxxxxxxxxxxx
-```
+## Required Variables
 
-Your Stripe secret key for API access. Get this from your [Stripe Dashboard](https://dashboard.stripe.com/apikeys).
+### `STRIPE_SECRET_KEY`
 
-### Internal API Security - Hourly Rotating Hash
+Stripe secret key used server-side by `functions/api/terminal/*` and
+`functions/api/payout/summary.ts`. Get this from your
+[Stripe Dashboard](https://dashboard.stripe.com/apikeys).
 
-```env
-SECRET_SALT=your_super_secret_salt_here
-```
+### `API_BASE_URL`
 
-This secret salt is used to generate hourly rotating hash keys for securing internal API endpoints (like the payout summary API). The hash automatically rotates every hour, providing enhanced security through automatic key rotation.
+Base URL of the internal backend that stores payment intents and logs
+(`functions/_lib/logger.ts`, `functions/api/terminal/payment-intent.ts`).
+Never exposed to the browser — only referenced inside Functions.
+
+### `INTERNAL_API_KEY`
+
+Secret salt used to generate an hourly-rotating HMAC hash that gates the
+payout summary API (`functions/api/payout/summary.ts`,
+`functions/api/payout/verify.ts`). Previously named
+`NEXT_PUBLIC_INTERNAL_API_KEY` — renamed because it no longer needs (and
+must never have) the `NEXT_PUBLIC_` prefix now that nothing client-side
+references it directly; that prefix would have told Next.js to inline the
+value into client JS if it were ever read from a component.
 
 **How it works:**
 - A unique hash is generated each hour based on the current UTC date and hour
-- Both the API and the client generate the same hash using the shared `SECRET_SALT`
+- Both the Function and the client (via `/api/payout/verify`) derive the
+  same hash from the shared `INTERNAL_API_KEY`
 - If someone intercepts the hash, it's only valid for the current hour
-- No manual key rotation needed - it's automatic!
-- Provides maximum security with 1-hour exposure window
 
-**To generate a secure salt, run:**
+**To generate a secure value:**
 
 ```bash
 openssl rand -base64 32
 ```
 
-**Example output:**
-```
-xK9pR3nT8vU4tX1zA6dF9hL2oQ7sW4yB5eG1jN3mP9r=
+### `PAYOUT_ACCESS_TOKEN`
+
+Bearer token required to access `/payout`. Checked by
+`functions/api/payout/verify.ts`, which the page calls on load (see below).
+
+**To generate a secure value:**
+
+```bash
+openssl rand -base64 32
 ```
 
-### Allowed Hosts (Optional - Production Only)
+### `CONSULTATION_WEBHOOK_URL`
 
-```env
+The booking-form webhook (`functions/api/consultation.ts` proxies to this).
+Previously hardcoded in `lib/constants.ts` and called directly from the
+browser — moved here specifically so the real endpoint never appears in the
+browser's dev tools; the page only ever calls `/api/consultation`.
+
+### `ALLOWED_HOSTS` (optional)
+
+Comma-separated list of domains allowed to call `/api/payout/summary`,
+checked against the `Origin`/`Referer` headers. Localhost is always allowed.
+
+```
 ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
 ```
 
-Comma-separated list of allowed domains that can access internal APIs. This adds an extra layer of security by checking the Origin/Referer headers.
+### Unused: `API_KEY`
 
-- **Development:** Not required - localhost is automatically allowed
-- **Production:** Recommended to set your production domain(s)
-- **Example:** `ALLOWED_HOSTS=myapp.com,www.myapp.com,app.mycompany.com`
+An `API_KEY` variable exists in some older `.env.local` files but is not
+referenced anywhere in the codebase — safe to drop.
 
-### Payout Page Access Token
-
-```env
-PAYOUT_ACCESS_TOKEN=your_secure_bearer_token_here
-```
-
-Bearer token required to access the `/payout` page. This provides page-level authentication.
-
-**To generate a secure token, run:**
+## Local Development
 
 ```bash
-openssl rand -base64 32
+cp .dev.vars.example .dev.vars
+# fill in real values in .dev.vars (gitignored)
+pnpm build          # next build --output export → out/
+pnpm start          # wrangler pages dev out — serves static export + functions/
 ```
 
-**Example output:**
-```
-kX9mP2nQ7vR4sT8uW1yA5bC6dE9fG3hJ4kL7mN0oP2q=
-```
+`pnpm dev` (`next dev`) still works for iterating on page UI, but it does
+**not** run `functions/**` — API calls from pages will 404 under `next dev`.
+Use `pnpm start` whenever you need the `/api/*` endpoints to work locally.
 
-This token must be sent in the `Authorization` header when accessing the payout page:
-```
-Authorization: Bearer kX9mP2nQ7vR4sT8uW1yA5bC6dE9fG3hJ4kL7mN0oP2q=
-```
+## Production (Cloudflare Pages)
 
-## Complete .env.local Example
-
-### Development Environment
-
-```env
-# Stripe API Keys
-STRIPE_SECRET_KEY=sk_test_xxxxxxxxxxxxx
-
-# Internal API Security (Hourly Rotating Hash)
-SECRET_SALT=xK9pR3nT8vU4tX1zA6dF9hL2oQ7sW4yB5eG1jN3mP9r=
-
-# Payout Page Access
-PAYOUT_ACCESS_TOKEN=kX9mP2nQ7vR4sT8uW1yA5bC6dE9fG3hJ4kL7mN0oP2q=
-```
-
-### Production Environment
-
-```env
-# Stripe API Keys
-STRIPE_SECRET_KEY=sk_live_xxxxxxxxxxxxx
-
-# Internal API Security (Hourly Rotating Hash)
-SECRET_SALT=xK9pR3nT8vU4tX1zA6dF9hL2oQ7sW4yB5eG1jN3mP9r=
-
-# Allowed Hosts (Production only)
-ALLOWED_HOSTS=myapp.com,www.myapp.com
-
-# Payout Page Access
-PAYOUT_ACCESS_TOKEN=kX9mP2nQ7vR4sT8uW1yA5bC6dE9fG3hJ4kL7mN0oP2q=
-```
-
-## Security Notes
-
-- **Never commit** `.env.local` or any file containing actual secrets to version control
-- The `SECRET_SALT` is kept server-side only and never exposed to the browser
-- The hourly hash is generated server-side in `getServerSideProps` and passed to the client
-
-### Multi-Layer Security Approach
-
-The payout system uses **three layers of security**:
-
-1. **Page-Level Token Authentication** (First layer - Page Access)
-   - Validates token before rendering the page
-   - Server-side check using `getServerSideProps`
-   - Accepts token via query parameter (`?auth=token`) or Authorization header
-   - Redirects to home page (`/`) if token is missing or invalid
-   - Cannot be bypassed by client-side manipulation
-   - Token stored securely in environment variables
-
-2. **Origin/Referer Check** (Second layer - API Access)
-   - Validates that API requests come from your own domain
-   - Checks the `Origin` and `Referer` HTTP headers
-   - Automatically allows localhost for development
-   - Prevents cross-origin requests from unauthorized domains
-   - Returns `403 Forbidden` if origin is invalid
-
-3. **Hourly Rotating Hash** (Third layer - API Access)
-   - Automatically generates a new hash every hour based on UTC date and hour
-   - Both client and API generate the same hash using the shared `SECRET_SALT`
-   - Hash changes automatically every 60 minutes
-   - Intercepted hashes expire within the hour
-   - No manual key rotation required
-   - Returns `401 Unauthorized` if hash is missing or invalid
-
-### Security Benefits
-
-- **Defense in Depth:** Three independent security layers make it extremely difficult to bypass
-- **Automatic Key Rotation:** Hash changes every hour without manual intervention
-- **Limited Exposure Window:** Intercepted keys are only valid for the current hour (maximum security)
-- **Server-Side Authentication:** Page access validated before any client code runs
-- **Flexible Authentication:** Supports both query parameter and Bearer token methods
-- **Cross-Origin Protection:** Origin checks prevent CSRF-like attacks
-- **Time-Based Security:** Cryptographic hash tied to current UTC date and hour
-- **No Client-Side Bypass:** Server-side validation ensures security cannot be circumvented
-- **Automatic Development Support:** Localhost is automatically allowed for local testing
-- **Comprehensive Logging:** All unauthorized attempts are logged for security monitoring
-
-### Security Considerations for Query Parameter Method
-
-When using the `?auth=token` method, be aware that:
-
-- ✅ **Pros:** Easy to use, works in browsers, shareable links
-- ⚠️ **Cons:** Token visible in URL (browser history, server logs, referer headers)
-
-**Best Practices:**
-
-1. **Use Bearer header for programmatic access** - More secure for API clients
-2. **Query parameter for internal tools** - Acceptable for internal dashboards with controlled access
-3. **Rotate tokens regularly** - Change `PAYOUT_ACCESS_TOKEN` periodically
-4. **Use HTTPS in production** - Always use secure connections
-5. **Consider session-based auth** - For public-facing applications, implement proper session management
-
-### Additional Production Security Measures
-
-For enhanced security in production, consider:
-- IP whitelisting at the infrastructure level
-- Rate limiting (e.g., using Vercel Edge Config or Upstash)
-- Session-based authentication for logged-in users
-- WAF (Web Application Firewall) rules
-- Server-side rendering with `getServerSideProps` to hide API calls
-
-## After Setting Up
-
-1. Create `.env.local` file in the root directory
-2. Add all required environment variables
-3. Generate secure tokens using the commands provided above
-4. Restart your Next.js development server: `pnpm dev`
-5. The payout summary page requires Bearer token authentication
+1. Connect the repo in the Cloudflare Pages dashboard. Build command
+   `pnpm build`, output directory `out`.
+2. Set each required variable above as a Pages secret:
+   ```bash
+   wrangler pages secret put STRIPE_SECRET_KEY --project-name share-and-work
+   wrangler pages secret put API_BASE_URL --project-name share-and-work
+   wrangler pages secret put INTERNAL_API_KEY --project-name share-and-work
+   wrangler pages secret put PAYOUT_ACCESS_TOKEN --project-name share-and-work
+   wrangler pages secret put CONSULTATION_WEBHOOK_URL --project-name share-and-work
+   wrangler pages secret put ALLOWED_HOSTS --project-name share-and-work   # optional
+   ```
+   (or set them via Pages → Settings → Environment variables in the dashboard).
 
 ## Accessing the Payout Page
 
-The `/payout` page requires authentication via either:
-1. **Query Parameter** - `?auth=your_token` (easiest for browser access)
-2. **Authorization Header** - `Authorization: Bearer your_token` (for API clients)
+The `/payout` page is a static page. On load, it calls
+`GET /api/payout/verify` with the token, and only fetches summary data if
+that succeeds — replacing the old `getServerSideProps` gate (which required a
+Node server and can't run in a static export).
 
-### Method 1: Browser URL with Query Parameter (Recommended)
-
-Simply add the `auth` parameter to the URL:
+**Supported method: query parameter**
 
 ```
-http://localhost:3000/payout?auth=kX9mP2nQ7vR4sT8uW1yA5bC6dE9fG3hJ4kL7mN0oP2q=
+https://yourdomain.com/payout?auth=YOUR_TOKEN
 ```
 
 With additional parameters:
 
 ```
-http://localhost:3000/payout?auth=YOUR_TOKEN&po_id=po_xxx&limit=50
+https://yourdomain.com/payout?auth=YOUR_TOKEN&po_id=po_xxx&limit=50
 ```
 
-This method works directly in any web browser!
+An `Authorization: Bearer` header still works if you call
+`/api/payout/verify` and `/api/payout/summary` directly (e.g. from a script),
+but the `/payout` page itself only reads the `auth` query parameter — there's
+no server-rendered request left to attach a header to before the page loads.
 
-### Method 2: Using cURL with Bearer Token
+### Security layers (unchanged)
 
-```bash
-curl -H "Authorization: Bearer kX9mP2nQ7vR4sT8uW1yA5bC6dE9fG3hJ4kL7mN0oP2q=" \
-  "http://localhost:3000/payout?limit=50"
-```
-
-### Method 3: Using Postman
-
-1. Open Postman
-2. Create a new GET request to `http://localhost:3000/payout`
-3. Go to the "Authorization" tab
-4. Select "Bearer Token" as the type
-5. Paste your token in the Token field
-6. Add query parameters (optional): `?po_id=xxx&limit=100`
-7. Send the request
-
-### Method 4: Using JavaScript/Fetch
-
-```javascript
-fetch('http://localhost:3000/payout?limit=50', {
-  headers: {
-    'Authorization': 'Bearer kX9mP2nQ7vR4sT8uW1yA5bC6dE9fG3hJ4kL7mN0oP2q='
-  }
-})
-```
-
-### In Your Application
-
-If you're embedding this in another app or iframe, you can either:
-- Use the query parameter method: `<iframe src="/payout?auth=token">`
-- Set the Authorization header via a proxy or server-side component
+1. **Page-level token** — `/api/payout/verify` checks `PAYOUT_ACCESS_TOKEN`
+2. **Origin/Referer check** — `/api/payout/summary` validates the caller's domain
+3. **Hourly rotating hash** — `/api/payout/summary` requires the current
+   `INTERNAL_API_KEY`-derived hash, obtained from step 1
 
 ## Troubleshooting
 
-### 401 Unauthorized Error
+### 401 from `/api/payout/verify` / page redirects to `/`
 
-If you see "Unauthorized Access" page:
-1. Verify that `.env.local` contains `PAYOUT_ACCESS_TOKEN`
-2. Ensure you're sending the correct Bearer token in the Authorization header
-3. Token format must be: `Authorization: Bearer your_token_here`
-4. Restart the Next.js development server after changing environment variables
+- Verify `PAYOUT_ACCESS_TOKEN` and `INTERNAL_API_KEY` are set in `.dev.vars`
+  (local) or as Pages secrets (production)
+- Check the `?auth=` value matches `PAYOUT_ACCESS_TOKEN` exactly
 
-### 403 Forbidden Error
+### 403 from `/api/payout/summary`
 
-If the API returns 403:
-1. Check that `NEXT_PUBLIC_INTERNAL_API_KEY` is set correctly
-2. Verify origin/referer headers are from allowed domains
-3. In production, ensure `ALLOWED_HOSTS` includes your domain
+- In production, ensure `ALLOWED_HOSTS` includes your domain
 
-### Page Redirects to Home (/)
+### API routes 404 locally
 
-If the payout page redirects you to the home page:
-
-1. **Check your token** - Verify it matches `PAYOUT_ACCESS_TOKEN` in `.env.local`
-2. **Use query parameter** - Try accessing via `?auth=your_token`
-3. **Check environment** - Ensure `.env.local` file exists and `PAYOUT_ACCESS_TOKEN` is set
-4. **Restart server** - After changing environment variables, restart: `pnpm dev`
-
-**Example working URL:**
-```
-http://localhost:3000/payout?auth=kX9mP2nQ7vR4sT8uW1yA5bC6dE9fG3hJ4kL7mN0oP2q=
-```
-
+- You're probably running `next dev` — use `pnpm start`
+  (`wrangler pages dev out`) instead, which serves `functions/**`

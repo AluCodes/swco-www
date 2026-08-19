@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import type { GetServerSideProps } from 'next';
-import crypto from 'crypto';
 
 interface BalanceTransaction {
   id: string;
@@ -55,56 +53,53 @@ interface TransactionTypeGroup {
   total: number;
 }
 
-interface PayoutSummaryPageProps {
-  hourlyApiKey: string;
-}
-
-const PayoutSummaryPage = ({ hourlyApiKey }: PayoutSummaryPageProps) => {
+const PayoutSummaryPage = () => {
   const router = useRouter();
   const [data, setData] = useState<PayoutSummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hourlyApiKey, setHourlyApiKey] = useState<string | null>(null);
 
-  const fetchPayoutSummary = async () => {
+  const fetchPayoutSummary = async (apiKey: string) => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const params = new URLSearchParams();
-      
+
       // Get parameters from URL query
       const { po_id, limit } = router.query;
-      
+
       if (limit && typeof limit === 'string') {
         params.append('limit', limit);
       } else {
         params.append('limit', '100');
       }
-      
+
       if (po_id && typeof po_id === 'string') {
         params.append('po_id', po_id);
       }
 
       const response = await fetch(`/api/payout/summary?${params.toString()}`, {
         headers: {
-          'x-internal-key': hourlyApiKey,
+          'x-internal-key': apiKey,
         },
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
       }
 
       const result = await response.json();
-      
+
       // Sort transactions by date (ascending - oldest first)
       if (result.transactions && result.transactions.length > 0) {
         result.transactions.sort((a: BalanceTransaction, b: BalanceTransaction) => {
           return a.created - b.created;
         });
       }
-      
+
       setData(result);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
@@ -114,11 +109,31 @@ const PayoutSummaryPage = ({ hourlyApiKey }: PayoutSummaryPageProps) => {
     }
   };
 
+  // Page-level access check, replacing the old server-side getServerSideProps
+  // gate (not available in a static export) — same token, verified client-side
+  // against /api/payout/verify before any summary data is requested.
   useEffect(() => {
-    if (router.isReady) {
-      fetchPayoutSummary();
+    if (!router.isReady) return;
+
+    const token = typeof router.query.auth === 'string' ? router.query.auth : '';
+
+    fetch(`/api/payout/verify?auth=${encodeURIComponent(token)}`)
+      .then(async (response) => {
+        if (!response.ok) {
+          router.push('/');
+          return;
+        }
+        const result = await response.json();
+        setHourlyApiKey(result.hourlyApiKey);
+      })
+      .catch(() => router.push('/'));
+  }, [router.isReady, router.query.auth]);
+
+  useEffect(() => {
+    if (router.isReady && hourlyApiKey) {
+      fetchPayoutSummary(hourlyApiKey);
     }
-  }, [router.isReady, router.query]);
+  }, [router.isReady, router.query, hourlyApiKey]);
 
   const formatCurrency = (amount: number, currency: string) => {
     const value = (amount / 100).toFixed(2);
@@ -401,69 +416,6 @@ const PayoutSummaryPage = ({ hourlyApiKey }: PayoutSummaryPageProps) => {
       </div>
     </>
   );
-};
-
-// Generate hourly hash for automatic key rotation
-function generateHourlyHash(secret: string): string {
-  const now = new Date();
-  const dateHour = `${now.toISOString().split('T')[0]}-${now.getUTCHours()}`;
-  const hash = crypto
-    .createHmac('sha256', secret)
-    .update(dateHour)
-    .digest('hex');
-  return hash;
-}
-
-// Server-side authentication check
-export const getServerSideProps: GetServerSideProps<PayoutSummaryPageProps> = async (context) => {
-  const { req, query } = context;
-  
-  // Get valid bearer token from environment
-  const validBearerToken = process.env.PAYOUT_ACCESS_TOKEN;
-  const secretSalt = process.env.NEXT_PUBLIC_INTERNAL_API_KEY;
-  
-  if (!validBearerToken || !secretSalt) {
-    // No token configured, deny access
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
-  }
-  
-  let token: string | null = null;
-  
-  // Check for token in query parameter (e.g., ?auth=token)
-  if (query.auth && typeof query.auth === 'string') {
-    token = query.auth;
-  }
-  
-  // Check for token in Authorization header (Bearer token)
-  const authHeader = req.headers.authorization;
-  if (!token && authHeader && authHeader.startsWith('Bearer ')) {
-    token = authHeader.substring(7); // Remove 'Bearer ' prefix
-  }
-  
-  // Verify the token
-  if (!token || token !== validBearerToken) {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
-  }
-  
-  // Generate hourly API key for internal API calls
-  const hourlyApiKey = generateHourlyHash(secretSalt);
-  
-  // Token is valid, allow access to the page
-  return {
-    props: {
-      hourlyApiKey,
-    },
-  };
 };
 
 export default PayoutSummaryPage;

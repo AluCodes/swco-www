@@ -1,28 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Static export for Cloudflare Pages — API routes/getServerSideProps
+  // are replaced by Cloudflare Pages Functions under functions/api/**
+  output: 'export',
+
   // Security: Remove X-Powered-By header
   poweredByHeader: false,
-  
+
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'kaesolegacy.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '3000',
-        pathname: '/**',
-      },
-    ],
-    formats: ['image/webp', 'image/avif'],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // Next's image optimizer needs a server; not available in a static export
+    unoptimized: true,
   },
-  // trailingSlash: true,
 };
 
 module.exports = nextConfig;
