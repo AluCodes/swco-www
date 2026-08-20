@@ -159,3 +159,4 @@ no server-rendered request left to attach a header to before the page loads.
 
 - You're probably running `next dev` — use `pnpm start`
   (`wrangler pages dev out`) instead, which serves `functions/**`
+
