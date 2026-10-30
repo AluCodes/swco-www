@@ -8,4 +8,4 @@ while read -r _ _ remote_ref _; do
   esac
 done
 
-check_file_count
+check_file_count HEAD
