@@ -1,0 +1,7 @@
+. "$(dirname "$0")/branch-rules.sh"
+
+check_branch_name "$(git symbolic-ref --short HEAD)"
+check_file_count --cached
+
+npm run --silent typecheck || fail "Type check failed." \
+  "Fix the errors above before committing (run: npm run typecheck)."
