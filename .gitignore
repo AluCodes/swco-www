@@ -58,3 +58,6 @@ out/
 .dev.vars
 .dev.vars.*
 !.dev.vars.example
+
+# TypeScript incremental build cache
+*.tsbuildinfo
