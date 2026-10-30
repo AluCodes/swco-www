@@ -1,0 +1,37 @@
+# Server-side version of the .husky hooks — see agents/git-workflow.md.
+# Mark the "pr-rules" check as required in the branch rulesets for main and dev.
+name: pr-rules
+
+on:
+  pull_request:
+    branches: [main, dev]
+    types: [opened, synchronize, reopened, edited]
+
+jobs:
+  pr-rules:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check source branch and size
+        env:
+          BASE: ${{ github.event.pull_request.base.ref }}
+          HEAD: ${{ github.event.pull_request.head.ref }}
+          CHANGED_FILES: ${{ github.event.pull_request.changed_files }}
+        run: |
+          if [ "$BASE" = "main" ]; then
+            if [ "$HEAD" != "dev" ]; then
+              echo "::error::PRs into main must come from dev (this one is from '$HEAD')."
+              exit 1
+            fi
+            echo "dev -> main: OK"
+            exit 0
+          fi
+
+          if ! echo "$HEAD" | grep -Eq '^(feat|fix|refactor|docs|chore)/[a-z0-9]+(-[a-z0-9]+)*$'; then
+            echo "::error::Branch '$HEAD' must be named <type>/<short-name> (feat, fix, refactor, docs or chore; lowercase words joined by hyphens)."
+            exit 1
+          fi
+          if [ "$CHANGED_FILES" -gt 10 ]; then
+            echo "::error::This PR changes $CHANGED_FILES files (limit: 10). Split it into smaller branches."
+            exit 1
+          fi
+          echo "$HEAD -> dev: OK ($CHANGED_FILES files)"

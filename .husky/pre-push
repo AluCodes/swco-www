@@ -1,0 +1,11 @@
+. "$(dirname "$0")/branch-rules.sh"
+
+# stdin: <local ref> <local sha> <remote ref> <remote sha>, one line per ref being pushed
+while read -r _ _ remote_ref _; do
+  case "$remote_ref" in
+    refs/heads/main|refs/heads/dev) fail "Don't push directly to '${remote_ref#refs/heads/}'." \
+      "main is only updated by a PR from dev; dev only by PRs from feature branches." ;;
+  esac
+done
+
+check_file_count HEAD

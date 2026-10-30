@@ -1,0 +1,2 @@
+# Runs after git pull / git merge.
+sh "$(dirname "$0")/delete-merged-branches.sh"
