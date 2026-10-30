@@ -22,7 +22,7 @@ check_branch_name() {
     "Rename it:  git branch -m <new-name>"
 }
 
-# $1: "--cached" to include staged changes (pre-commit), empty for commits only (pre-push)
+# $1: "--cached" to include staged changes (pre-commit), "HEAD" for commits only (pre-push)
 check_file_count() {
   base=$(git merge-base HEAD origin/dev 2>/dev/null) || {
     printf '\033[33m⚠ origin/dev not found locally, skipping the %s-file check (run git fetch).\033[0m\n' "$MAX_FILES" >&2
